@@ -1,47 +1,34 @@
 import { api } from './api';
-import { User } from '@/types/user';
-import { Note } from '@/types/note';
 import { cookies } from 'next/headers';
+import { Note } from '@/types/note';
+import { User } from '@/types/user';
 
-const getAuthHeaders = () => {
-  const cookieStore = cookies();
+export async function getAuthHeaders() {
+  const cookieStore = await cookies();
   return {
-    headers: {
-      Cookie: cookieStore.toString(),
-    },
+    Cookie: cookieStore.toString(),
   };
-};
+}
 
-export const fetchNotes = async (params?: {
-  search?: string;
-  page?: number;
-  tag?: string;
-}): Promise<Note[]> => {
-  const response = await api.get<Note[]>('/notes', {
-    ...getAuthHeaders(),
-    params: { ...params, perPage: 12 },
-  });
+export async function checkSession() {
+  const headers = await getAuthHeaders();
+  return await api.get('/auth/session', { headers });
+}
+
+export async function fetchNoteById(id: string): Promise<Note> {
+  const headers = await getAuthHeaders();
+  const response = await api.get<Note>(`/notes/${id}`, { headers });
   return response.data;
-};
+}
 
-export const fetchNoteById = async (id: string): Promise<Note> => {
-  const response = await api.get<Note>(`/notes/${id}`, getAuthHeaders());
+export async function getMe(): Promise<User> {
+  const headers = await getAuthHeaders();
+  const response = await api.get<User>('/users/me', { headers });
   return response.data;
-};
+}
 
-export const getMe = async (): Promise<User> => {
-  const response = await api.get<User>('/users/me', getAuthHeaders());
+export async function fetchNotes(params?: Record<string, unknown>) {
+  const headers = await getAuthHeaders();
+  const response = await api.get('/notes', { headers, params });
   return response.data;
-};
-
-export const checkSession = async (): Promise<User | null> => {
-  try {
-    const response = await api.get<User | null>(
-      '/auth/session',
-      getAuthHeaders(),
-    );
-    return response.data || null;
-  } catch {
-    return null;
-  }
-};
+}

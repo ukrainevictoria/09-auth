@@ -1,34 +1,39 @@
-export const dynamic = 'force-dynamic';
+import { NextRequest, NextResponse } from 'next/server';
+import { api } from '@/lib/api/api';
 
-import { NextResponse } from 'next/server';
-import { api } from '@/app/api/api';
-import { cookies } from 'next/headers';
-import { logErrorResponse } from '@/app/api/_utils/utils';
-import { isAxiosError } from 'axios';
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-
-    const res = await api.get('/users/me', {
-      headers: {
-        Cookie: cookieStore.toString(),
-      },
+    const cookieHeader = request.headers.get('cookie') || '';
+    const response = await api.get('/users/me', {
+      headers: { Cookie: cookieHeader },
     });
-    return NextResponse.json(res.data, { status: res.status });
-  } catch (error) {
-    if (isAxiosError(error)) {
-      logErrorResponse(error.response?.data);
-      return NextResponse.json(
-        { error: error.message, response: error.response?.data },
-        { status: error.response?.status || 500 }, // ✅ Беремо status із error.response
-      );
-    }
-
-    logErrorResponse({ message: (error as Error).message });
+    return NextResponse.json(response.data);
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { data?: { message?: string }; status?: number };
+    };
     return NextResponse.json(
-      { error: 'Internal Server Error' },
-      { status: 500 },
+      { message: err.response?.data?.message || 'Server error' },
+      { status: err.response?.status || 500 },
+    );
+  }
+}
+
+export async function PATCH(request: NextRequest) {
+  try {
+    const cookieHeader = request.headers.get('cookie') || '';
+    const body = await request.json();
+    const response = await api.patch('/users/me', body, {
+      headers: { Cookie: cookieHeader },
+    });
+    return NextResponse.json(response.data);
+  } catch (error: unknown) {
+    const err = error as {
+      response?: { data?: { message?: string }; status?: number };
+    };
+    return NextResponse.json(
+      { message: err.response?.data?.message || 'Server error' },
+      { status: err.response?.status || 500 },
     );
   }
 }
