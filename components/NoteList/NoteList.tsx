@@ -25,29 +25,16 @@ export default function NoteList({ notes }: NoteListProps) {
 
   return (
     <ul>
-      {notes.map((note) => {
-        const item = note as unknown as {
-          id?: string;
-          _id?: string;
-          title: string;
-          content: string;
-          tag?: string;
-        };
-        const noteId = (item.id || item._id) as string;
-
-        return (
-          <li key={noteId}>
-            <Link href={`/notes/${noteId}`}>
-              <h3>{note.title}</h3>
-            </Link>
-            <p>{note.content}</p>
-            {note.tag && <span>#{note.tag}</span>}
-            <button onClick={() => deleteMutation.mutate(noteId)}>
-              Delete
-            </button>
-          </li>
-        );
-      })}
+      {notes.map((note) => (
+        <li key={note.id}>
+          <Link href={`/notes/${note.id}`}>
+            <h3>{note.title}</h3>
+          </Link>
+          <p>{note.content}</p>
+          <span>#{note.tag}</span>
+          <button onClick={() => deleteMutation.mutate(note.id)}>Delete</button>
+        </li>
+      ))}
     </ul>
   );
 }

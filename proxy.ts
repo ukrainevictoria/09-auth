@@ -17,12 +17,21 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   let isAuthenticated = false;
+  let newCookiesToSet: string[] = [];
 
-  if (accessToken || refreshToken) {
+  if (accessToken) {
+    isAuthenticated = true;
+  } else if (refreshToken) {
     try {
       const sessionRes = await checkSession();
       if (sessionRes && sessionRes.status === 200) {
         isAuthenticated = true;
+        const setCookieHeader = sessionRes.headers['set-cookie'];
+        if (setCookieHeader) {
+          newCookiesToSet = Array.isArray(setCookieHeader)
+            ? setCookieHeader
+            : [setCookieHeader];
+        }
       }
     } catch {
       isAuthenticated = false;
@@ -41,12 +50,11 @@ export async function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
 
-  // Збереження оновлених куків, якщо вони були передані під час checkSession
-  if (accessToken) {
-    response.cookies.set('accessToken', accessToken);
-  }
-  if (refreshToken) {
-    response.cookies.set('refreshToken', refreshToken);
+  // Оновлюємо куки, якщо вони були повернуті з підтвердження сесії
+  if (newCookiesToSet.length > 0) {
+    newCookiesToSet.forEach((cookieStr) => {
+      response.headers.append('Set-Cookie', cookieStr);
+    });
   }
 
   return response;
