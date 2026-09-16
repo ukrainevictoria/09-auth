@@ -1,22 +1,42 @@
 .header {
-  width: 100%;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #ffffff;
-  padding: 16px 0;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 1rem 2rem;
+  background-color: #333;
+  color: white;
 }
 
-.logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333333;
+.headerLink {
   text-decoration: none;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.headerLink:hover {
+  color: #ddd;
+}
+
+.navigation {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 1rem;
+}
+
+.navigationItem {
+  display: flex;
+  align-items: center;
+}
+
+.navigationLink {
+  text-decoration: none;
+  color: white;
+  font-size: 1rem;
+}
+
+.navigationLink:hover {
+  color: #ddd;
 }
