@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/lib/api/api';
+import { AxiosError } from 'axios';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,13 +9,16 @@ export async function GET(request: NextRequest) {
       headers: { Cookie: cookieHeader },
     });
     return NextResponse.json(response.data);
-  } catch (error: unknown) {
-    const err = error as {
-      response?: { data?: { message?: string }; status?: number };
-    };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return NextResponse.json(
+        { message: error.response?.data?.message || error.message },
+        { status: error.response?.status || 500 },
+      );
+    }
     return NextResponse.json(
-      { message: err.response?.data?.message || 'Server error' },
-      { status: err.response?.status || 500 },
+      { message: 'Internal Server Error' },
+      { status: 500 },
     );
   }
 }
@@ -27,13 +31,16 @@ export async function PATCH(request: NextRequest) {
       headers: { Cookie: cookieHeader },
     });
     return NextResponse.json(response.data);
-  } catch (error: unknown) {
-    const err = error as {
-      response?: { data?: { message?: string }; status?: number };
-    };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      return NextResponse.json(
+        { message: error.response?.data?.message || error.message },
+        { status: error.response?.status || 500 },
+      );
+    }
     return NextResponse.json(
-      { message: err.response?.data?.message || 'Server error' },
-      { status: err.response?.status || 500 },
+      { message: 'Internal Server Error' },
+      { status: 500 },
     );
   }
 }
